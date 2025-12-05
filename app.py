@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
 import time
+import os  # <--- CRITICAL IMPORT
 
 # --- 1. SYSTEM CONFIGURATION ---
 st.set_page_config(
@@ -21,10 +22,12 @@ def local_css(file_name):
     with open(file_name) as f:
         st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-local_css("style.css")
+try:
+    local_css("style.css")
+except FileNotFoundError:
+    pass # prevent crash if css is missing
 
 # --- 2. SESSION STATE MANAGEMENT ---
-# This keeps the generated tool alive even when you interact with it
 if "generated_code" not in st.session_state:
     st.session_state.generated_code = None
 if "active_mode" not in st.session_state:
@@ -32,20 +35,31 @@ if "active_mode" not in st.session_state:
 if "last_prompt" not in st.session_state:
     st.session_state.last_prompt = None
 
-# --- SIDEBAR (CONTROL PANEL) ---
+# --- 3. SIDEBAR (CONTROL PANEL) ---
 with st.sidebar:
     st.markdown("## 💠 AETHER CORE")
     st.caption("v3.0.1 | LIQUID INTERFACE ENGINE")
     st.markdown("---")
     
-    # 🔑 SMART KEY HANDLING
-    # Check if the developer provided a secret key in the cloud
-    if "GEMINI_API_KEY" in st.secrets:
-        api_key = st.secrets["GEMINI_API_KEY"]
+    # 🔑 ROBUST KEY HANDLING (Fixed for Render)
+    api_key = None
+    
+    # Check 1: Render/System Environment Variable
+    if os.environ.get("GEMINI_API_KEY"):
+        api_key = os.environ.get("GEMINI_API_KEY")
         st.success("☁️ CLOUD ACCESS ENABLED")
-        st.caption("The developer is sponsoring this session.")
-    else:
-        # Fallback: Ask user for their key
+    
+    # Check 2: Streamlit Secrets (Fall back if env var not found)
+    elif not api_key:
+        try:
+            if "GEMINI_API_KEY" in st.secrets:
+                api_key = st.secrets["GEMINI_API_KEY"]
+                st.success("☁️ CLOUD ACCESS ENABLED")
+        except:
+            pass # Ignore errors if secrets.toml doesn't exist
+
+    # Check 3: User Input (If no cloud key found)
+    if not api_key:
         api_key = st.text_input("ACCESS KEY (Gemini)", type="password", help="Get a free key from Google AI Studio")
         if not api_key:
             st.warning("⚠️ Please enter a Key to start.")
@@ -71,10 +85,6 @@ with st.sidebar:
         st.session_state.active_mode = "🎨 Visual Designer"
 
     st.markdown("---")
-    if api_key:
-        st.success("SYSTEM ONLINE")
-    else:
-        st.error("OFFLINE: Awaiting Key")
 
 # --- 4. MAIN INTERFACE ---
 st.title("AETHER INTELLIGENCE")
