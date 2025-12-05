@@ -37,7 +37,7 @@ if "last_prompt" not in st.session_state:
 
 # --- 3. SIDEBAR (CONTROL PANEL) ---
 with st.sidebar:
-    st.markdown("## 💠 AETHER CORE")
+    st.markdown("## 💠 AETHER  OS")
     st.caption("v3.0.1 | LIQUID INTERFACE ENGINE")
     st.markdown("---")
     
@@ -85,7 +85,10 @@ with st.sidebar:
         st.session_state.active_mode = "🎨 Visual Designer"
 
     st.markdown("---")
-
+    
+    st.markdown("###  Designed By Tejashvi ")
+    st.markdown("---")
+    
 # --- 4. MAIN INTERFACE ---
 st.title("AETHER INTELLIGENCE")
 st.markdown("#### *State your intent. The system will forge the interface.*")
